@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="静心木鱼">
   <meta name="format-detection" content="telephone=no">
   <title>静心木鱼 · 一声一念</title>
-  <!-- v1.2: 古寺竹影浅色主题、10阶每日成就；音频播放逻辑沿用 v1.1 -->
+  <!-- v1.3: 修复 iPhone Safari 连点缩放；保留 v1.2 主题/成就和 v1.1 音效 -->
   <style>
     :root {
       color-scheme: light;
@@ -66,7 +66,7 @@
     .intro h1{margin:10px 0 4px;font-size:clamp(21px,5vw,27px);line-height:1.3;font-weight:400;
       font-family:"STSong","Songti SC","Noto Serif CJK SC",serif;letter-spacing:4px;color:#285a4a;}
     .intro p{margin:4px 0 0;color:#81998d;font-size:10px;letter-spacing:2px;}
-    .stage{position:relative;flex:none;width:min(90vw,455px,41dvh);aspect-ratio:1/1.065;isolation:isolate;}
+    .stage{position:relative;flex:none;width:min(90vw,455px,41dvh);aspect-ratio:1/1.065;isolation:isolate;touch-action:none;}
     .stage::before{content:"";position:absolute;z-index:0;pointer-events:none;width:92%;aspect-ratio:1;border-radius:50%;
       left:3%;top:17%;background:radial-gradient(circle,rgba(255,255,249,.62) 0%,rgba(206,224,203,.28) 55%,rgba(221,234,219,.02) 75%,transparent 78%);
       box-shadow:inset 0 0 0 1px rgba(103,144,116,.06);}
@@ -81,7 +81,7 @@
       transform:rotate(0deg);transform-origin:93% 49%;will-change:transform;
       filter:drop-shadow(0 8px 6px rgba(65,65,49,.17));}
     .tap-area{position:absolute;z-index:8;inset:4% -2% 0;width:104%;height:96%;background:transparent;border-radius:42%;
-      -webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-user-select:none;user-select:none;}
+      -webkit-tap-highlight-color:transparent;touch-action:none;-webkit-user-select:none;user-select:none;}
     .float-layer{position:absolute;z-index:7;inset:0;pointer-events:none;overflow:visible;}
     .float-one{position:absolute;white-space:nowrap;display:flex;align-items:baseline;gap:7px;color:#376d54;pointer-events:none;
       font-size:13px;font-weight:650;text-shadow:0 2px 13px rgba(252,254,240,.95);animation:rise var(--duration,750ms) cubic-bezier(.13,.63,.12,1) forwards;will-change:transform,opacity;}
@@ -517,13 +517,42 @@
         clearTimeout(comboTimer);comboTimer=setTimeout(()=>{comboEl.classList.remove('visible');streak=0;},1150);
         animateStrike();floatPlusOne();playKnock();
       }
-      // click 在 iOS Safari 中属于可信用户激活，能直接解锁播放。
-      // 旧版在触屏 pointerdown 播放（手指尚未抬起），Safari 可能不允许启动音频。
-      // viewport + touch-action:manipulation 同时禁止双击缩放，快速连点仍会逐次触发 click。
+      // iPhone Safari：仅针对木鱼敲击区禁用浏览器原生触控手势。
+      // 部分 WebKit 版本在绝对定位触控区域上仍会双击缩放；不能只依赖 viewport / manipulation。
+      // 在真实 touchend 中计数（Safari 的用户激活事件），并阻止合成 click 及双击缩放。
+      // 仅改触控事件分发，不改变 playKnock / HTMLAudioElement 音效实现。
+      let touchOrigin=null, ignoreSyntheticClickUntil=0;
+      tapArea.addEventListener('touchstart',e=>{
+        if(e.cancelable)e.preventDefault();
+        if(e.touches.length!==1){touchOrigin=null;return;}
+        const t=e.touches[0];
+        touchOrigin={id:t.identifier,x:t.clientX,y:t.clientY};
+      },{passive:false});
+      tapArea.addEventListener('touchmove',e=>{
+        if(e.cancelable)e.preventDefault();
+      },{passive:false});
+      tapArea.addEventListener('touchend',e=>{
+        if(e.cancelable)e.preventDefault();
+        ignoreSyntheticClickUntil=performance.now()+750;
+        const start=touchOrigin;
+        touchOrigin=null;
+        if(!start||e.changedTouches.length!==1||e.touches.length!==0)return;
+        const t=e.changedTouches[0];
+        if(t.identifier!==start.id||Math.hypot(t.clientX-start.x,t.clientY-start.y)>28)return;
+        strike();
+      },{passive:false});
+      tapArea.addEventListener('touchcancel',()=>{
+        touchOrigin=null;
+        ignoreSyntheticClickUntil=performance.now()+750;
+      },{passive:false});
+      // 继续支持鼠标、键盘及辅助功能的 click；防止触摸后的合成 click 重复加一。
       tapArea.addEventListener('click',e=>{
-        if(e.detail===0 && e.isTrusted===false)return; // 忽略脚本伪造事件
+        if(e.detail>0&&performance.now()<ignoreSyntheticClickUntil)return;
+        if(e.detail===0&&e.isTrusted===false)return;
         strike();
       });
+      // Safari 对双击缩放的补充拦截，适用于页面中非木鱼的点击区域。
+      document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
       tapArea.addEventListener('contextmenu',e=>e.preventDefault());
       soundBtn.addEventListener('click',()=>{record.sound=!record.sound;renderSound();persist();if(record.sound)playKnock();});
       let noticeTimer=0;
