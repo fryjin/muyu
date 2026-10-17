@@ -3,118 +3,217 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#090a0b">
+  <meta name="theme-color" content="#e7f1ea">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="静心木鱼">
   <meta name="format-detection" content="telephone=no">
   <title>静心木鱼 · 一声一念</title>
+  <!-- v1.2: 古寺竹影浅色主题、10阶每日成就；音频播放逻辑沿用 v1.1 -->
   <style>
-    :root { color-scheme: dark; --gold:#dcb66f; --softgold:#e9cf9a; --faint:#98918a; --ink:#090a0b; }
-    *, *::before, *::after { box-sizing:border-box; }
+    :root {
+      color-scheme: light;
+      --ink: #263d36;
+      --moss: #285d50;
+      --jade: #3f7968;
+      --muted: #6f8981;
+      --gold: #b58955;
+      --softgold: #b58955;
+      --border: rgba(70,113,100,.17);
+      --paper: #eff4ec;
+    }
+    *,*::before,*::after { box-sizing:border-box; }
     html { width:100%; height:100%; margin:0; overflow:hidden; -webkit-text-size-adjust:100%; text-size-adjust:100%; touch-action:manipulation; }
     body { width:100%; height:100%; height:100dvh; min-height:0; margin:0; overflow:hidden; position:relative;
-      -webkit-font-smoothing:antialiased; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;
-      overscroll-behavior:none; touch-action:manipulation;
-      color:#f6f0e9; font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
-      background:radial-gradient(ellipse 85% 46% at 52% 51%,rgba(76,55,29,.21),transparent 71%),
-                 radial-gradient(ellipse 70% 36% at 50% 95%,rgba(51,43,32,.13),transparent 80%),
-                 #090a0b;
+      -webkit-font-smoothing:antialiased;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
+      overscroll-behavior:none;touch-action:manipulation;
+      color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+      background:
+        radial-gradient(ellipse 80% 43% at 89% 1%,rgba(176,210,186,.50),transparent 85%),
+        radial-gradient(ellipse 100% 70% at 5% 75%,rgba(188,219,204,.47),transparent 85%),
+        radial-gradient(ellipse 80% 45% at 55% 42%,rgba(255,255,249,.90),transparent 100%),
+        linear-gradient(160deg,#edf3ea 0%,#f7f6ed 48%,#e1eee7 100%);
     }
-    body::after { content:""; position:fixed; pointer-events:none; inset:0;
-      background:radial-gradient(ellipse 95% 85% at 50% 52%,transparent 40%,rgba(0,0,0,.38) 100%);
-      z-index:0;
+    body::before { content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+      opacity:.17;background-image:repeating-linear-gradient(0deg,rgba(45,87,70,.045) 0,rgba(45,87,70,.045) 1px,transparent 1px,transparent 4px); }
+    button {font:inherit;border:0;outline:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation;cursor:pointer;}
+    button:focus-visible{outline:2px solid var(--jade);outline-offset:4px;}
+    .scenery{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0;}
+    .zen-orb {position:absolute; width:min(88vw,520px); aspect-ratio:1; left:50%; top:42%; transform:translate(-50%,-50%);
+      background:radial-gradient(circle,rgba(255,255,250,.83) 0%,rgba(242,245,230,.50) 55%,transparent 73%);border-radius:50%;}
+    .bamboo{position:absolute;fill:none;stroke:#79a38a;stroke-linecap:round;stroke-linejoin:round;}
+    .bamboo-right{height:min(58vh,550px);width:auto;right:-24px;top:20%;opacity:.18;}
+    .bamboo-left{height:min(35vh,335px);width:auto;left:-50px;bottom:0;opacity:.16;transform:scaleX(-1);}
+    .hills{position:absolute;bottom:-1%;left:0;width:100%;height:26%;min-height:110px;opacity:.47;}
+    .cloud-mark{position:absolute; top:17%;left:6%;width:83px;opacity:.35;}
+    .app{position:relative;z-index:1;width:100%;height:100%;min-height:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;
+      padding:calc(env(safe-area-inset-top,0px) + 22px) 22px calc(env(safe-area-inset-bottom,0px) + 15px);}
+    .header{width:100%;max-width:700px;display:flex;align-items:flex-start;justify-content:space-between;flex:none;min-height:65px;gap:12px;}
+    .brand{display:flex;align-items:center;gap:10px;padding-top:4px;}
+    .brand-mark{width:36px;height:36px;border-radius:50%;border:1px solid rgba(41,103,79,.47);display:grid;place-items:center;
+      color:var(--moss);font-family:"STKaiti","KaiTi",serif;font-size:21px;line-height:1;background:rgba(255,255,252,.5);
+      box-shadow:inset 0 0 0 3px rgba(58,109,91,.05);}
+    .brand-name{font-size:14px;font-weight:650;line-height:1.3;letter-spacing:2px;color:var(--ink);}
+    .brand-sub{margin-top:5px;color:#8d9f96;font-size:9px;letter-spacing:1.8px;white-space:nowrap;}
+    .lifetime{display:flex;flex-direction:column;align-items:flex-end;gap:2px;margin-top:-2px;}
+    .lifetime-label{color:#658276;font-size:10px;letter-spacing:2px;}
+    .lifetime-bottom{display:flex;align-items:baseline;gap:4px;}
+    .lifetime-number{color:var(--moss);font-family:Georgia,"Times New Roman",serif;font-weight:400;font-size:35px;line-height:1.12;font-variant-numeric:tabular-nums;}
+    .lifetime-unit{color:#738d7c;font-size:10px;}
+    .main{width:100%;flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+    .intro{flex:none;text-align:center;margin:0 0 4px;}
+    .intro-label{font-size:10px;letter-spacing:6px;padding-left:6px;color:#aa895e;}
+    .intro h1{margin:10px 0 4px;font-size:clamp(21px,5vw,27px);line-height:1.3;font-weight:400;
+      font-family:"STSong","Songti SC","Noto Serif CJK SC",serif;letter-spacing:4px;color:#285a4a;}
+    .intro p{margin:4px 0 0;color:#81998d;font-size:10px;letter-spacing:2px;}
+    .stage{position:relative;flex:none;width:min(90vw,455px,41dvh);aspect-ratio:1/1.065;isolation:isolate;}
+    .stage::before{content:"";position:absolute;z-index:0;pointer-events:none;width:92%;aspect-ratio:1;border-radius:50%;
+      left:3%;top:17%;background:radial-gradient(circle,rgba(255,255,249,.62) 0%,rgba(206,224,203,.28) 55%,rgba(221,234,219,.02) 75%,transparent 78%);
+      box-shadow:inset 0 0 0 1px rgba(103,144,116,.06);}
+    .stage::after{content:"";position:absolute;pointer-events:none;z-index:0;inset:20% 7% 1% 7%;border:1px solid rgba(107,149,124,.10);
+      border-radius:50%;transform:scaleY(.89);}
+    .floor-shadow{position:absolute;width:67%;height:10%;top:85%;left:16%;border-radius:50%;
+      background:radial-gradient(ellipse,rgba(81,102,83,.28),rgba(72,88,77,.09) 55%,transparent 73%);filter:blur(10px);z-index:1;}
+    .woodfish{position:absolute;z-index:2;pointer-events:none;width:82%;height:auto;left:6%;top:41%;
+      transform:translate3d(0,0,0);transform-origin:48% 58%;will-change:transform;
+      filter:drop-shadow(0 14px 14px rgba(69,70,54,.22));}
+    .mallet{position:absolute;z-index:3;pointer-events:none;width:72%;height:auto;right:-13%;top:14%;
+      transform:rotate(0deg);transform-origin:93% 49%;will-change:transform;
+      filter:drop-shadow(0 8px 6px rgba(65,65,49,.17));}
+    .tap-area{position:absolute;z-index:8;inset:4% -2% 0;width:104%;height:96%;background:transparent;border-radius:42%;
+      -webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-user-select:none;user-select:none;}
+    .float-layer{position:absolute;z-index:7;inset:0;pointer-events:none;overflow:visible;}
+    .float-one{position:absolute;white-space:nowrap;display:flex;align-items:baseline;gap:7px;color:#376d54;pointer-events:none;
+      font-size:13px;font-weight:650;text-shadow:0 2px 13px rgba(252,254,240,.95);animation:rise var(--duration,750ms) cubic-bezier(.13,.63,.12,1) forwards;will-change:transform,opacity;}
+    .float-one strong{font-weight:600;font-family:Georgia,serif;color:#ba8250;font-size:27px;line-height:1;}
+    @keyframes rise{0%{transform:translate3d(0,12px,0) scale(.65);opacity:0}17%{opacity:1;transform:translate3d(0,-5px,0) scale(1.05)}75%{opacity:1}100%{opacity:0;transform:translate3d(var(--drift,0px),-96px,0) scale(.96)}}
+    .combo{position:absolute;z-index:7;text-align:center;left:50%;top:22%;transform:translateX(-50%) translateY(5px);pointer-events:none;
+      min-width:90px;display:flex;flex-direction:column;gap:4px;align-items:center;opacity:0;transition:opacity .15s,transform .15s;}
+    .combo.visible{opacity:1;transform:translateX(-50%) translateY(0);}
+    .combo-label{color:#798f78;letter-spacing:4px;font-size:10px;}
+    .combo-number{color:#b47e4f;font-size:23px;font-family:Georgia,serif;}
+    .tap-tip{flex:none;display:flex;align-items:center;gap:9px;color:#658679;font-size:11px;letter-spacing:2px;margin:0;}
+    .tap-tip::before,.tap-tip::after{content:"";width:21px;height:1px;background:linear-gradient(to right,transparent,rgba(71,123,98,.35));}
+    .tap-tip::after{transform:rotate(180deg);}
+    .achievement-card{position:relative;flex:none;display:flex;align-items:center;width:min(100%,450px);min-height:87px;margin-top:17px;
+      text-align:left;gap:11px;padding:13px 14px;border:1px solid rgba(74,125,102,.23);border-radius:15px;
+      background:linear-gradient(130deg,rgba(255,255,249,.83),rgba(231,244,232,.74));
+      box-shadow:0 6px 28px rgba(81,115,94,.08),inset 0 1px 0 rgba(255,255,255,.62);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);}
+    .achievement-card:active{background:#e5f0e5;}
+    .achievement-seal{flex:none;width:41px;height:41px;border-radius:50%;border:1px solid rgba(162,126,75,.48);
+      display:grid;place-items:center;color:#a2804f;background:#faf7e9;font-family:"STKaiti","KaiTi",serif;font-size:22px;
+      box-shadow:0 0 0 4px rgba(176,161,114,.09);}
+    .achievement-body{flex:1;min-width:0;}
+    .achievement-top{display:flex;align-items:center;justify-content:space-between;gap:7px;margin-bottom:3px;}
+    .achievement-overline{font-size:10px;letter-spacing:2px;color:#709084;}
+    .achievement-count{font-size:10px;color:#7e9b8a;font-variant-numeric:tabular-nums;}
+    .achievement-name{font-family:"STSong","Songti SC","Noto Serif CJK SC",serif;font-size:18px;letter-spacing:2px;line-height:1.4;color:#275745;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .achievement-bottom{display:flex;align-items:center;gap:8px;margin-top:4px;}
+    .achievement-track{flex:1;min-width:12px;height:4px;background:#cbded0;border-radius:9px;overflow:hidden;}
+    .achievement-fill{width:0%;height:100%;background:linear-gradient(90deg,#91baa2,#447d66);border-radius:9px;transition:width .2s;}
+    .achievement-next{font-size:9px;color:#799388;white-space:nowrap;}
+    .achievement-arrow{flex:none;width:15px;height:15px;color:#839d91;}
+    .footer{flex:none;width:100%;max-width:700px;padding-top:11px;border-top:1px solid rgba(58,105,85,.18);
+      display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:61px;}
+    .today{display:flex;flex-direction:column;gap:5px;}.today-title{font-size:10px;color:#6a8a7c;letter-spacing:2px;}
+    .today-value{font-family:Georgia,serif;font-size:25px;line-height:1;font-variant-numeric:tabular-nums;color:#2a5d4a;}
+    .today-unit{font:11px -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:#6e887a;margin-left:5px;}
+    .footer-actions{display:flex;align-items:center;gap:8px;}
+    .tool-button{height:38px;border:1px solid rgba(51,105,81,.2);background:rgba(255,255,252,.58);color:#517663;
+      display:inline-flex;align-items:center;justify-content:center;gap:7px;border-radius:24px;padding:0 12px;transition:background .2s,border-color .2s;font-size:12px;}
+    .tool-button:active{background:rgba(169,205,181,.33);border-color:rgba(51,105,81,.42);}
+    .tool-button svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+    .tool-button.off{color:#89958f;}.icon-only{padding:0;width:38px;}
+    .tiny-notice{position:fixed;z-index:50;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 102px);
+      transform:translateX(-50%) translateY(10px);padding:11px 16px;background:#295445;border:1px solid rgba(255,255,255,.2);
+      border-radius:24px;color:#fffaf0;font-size:12px;letter-spacing:1px;opacity:0;pointer-events:none;
+      transition:opacity .2s,transform .2s;white-space:nowrap;box-shadow:0 7px 20px rgba(35,67,50,.2);}
+    .tiny-notice.show{opacity:1;transform:translateX(-50%) translateY(0);}
+    /* iPhone Safari 底部成就清单：遮罩不触发背景敲击，清单区域可纵向滚动 */
+    .achieve-modal{position:fixed;z-index:100;inset:0;display:flex;align-items:flex-end;justify-content:center;
+      visibility:hidden;opacity:0;pointer-events:none;transition:opacity .22s,visibility .22s;}
+    .achieve-modal.open{visibility:visible;opacity:1;pointer-events:auto;}
+    .achieve-backdrop{position:absolute;inset:0;background:rgba(31,60,49,.34);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);}
+    .achieve-sheet{position:relative;width:min(100%,530px);height:auto;max-height:min(87dvh,780px);display:flex;flex-direction:column;
+      border-radius:23px 23px 0 0;overflow:hidden;background:linear-gradient(180deg,#f9faf1,#edf4ea);
+      box-shadow:0 -12px 50px rgba(22,65,49,.19);transform:translateY(15px);transition:transform .24s;
+      padding:17px 19px calc(env(safe-area-inset-bottom,0px) + 16px);}
+    .achieve-modal.open .achieve-sheet{transform:translateY(0);}
+    .sheet-handle{width:38px;height:4px;border-radius:5px;background:#cadacd;align-self:center;margin-bottom:12px;}
+    .sheet-head{display:flex;align-items:center;justify-content:space-between;flex:none;gap:12px;}
+    .sheet-kicker{font-size:10px;letter-spacing:4px;color:#a88a62;}
+    .sheet-title{margin:4px 0 0;font-family:"STSong","Songti SC","Noto Serif CJK SC",serif;font-size:25px;letter-spacing:3px;color:#285949;font-weight:500;}
+    .sheet-close{width:35px;height:35px;border-radius:50%;background:#e2eae0;color:#496b5b;font-size:24px;line-height:1;}
+    .sheet-summary{font-size:12px;color:#668679;margin-top:7px;margin-bottom:14px;flex:none;}
+    .levels-list{min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;
+      padding-bottom:4px;display:flex;flex-direction:column;gap:7px;scrollbar-width:thin;}
+    .level-row{display:flex;align-items:center;gap:12px;min-height:53px;padding:9px 11px;border:1px solid rgba(78,114,92,.10);border-radius:11px;background:rgba(255,255,255,.42);}
+    .level-row.earned{background:rgba(219,234,216,.72);border-color:rgba(52,121,85,.19);}
+    .level-row.current{background:rgba(225,237,217,.95);border-color:rgba(52,121,85,.47);box-shadow:inset 3px 0 #5d9978;}
+    .level-number{flex:none;width:33px;height:33px;border-radius:50%;display:grid;place-items:center;border:1px solid #cad8c8;
+      font:13px Georgia,serif;color:#9aaa9c;}
+    .earned .level-number{background:#518269;color:#fffdf3;border-color:#518269;}
+    .level-title-wrap{min-width:0;flex:1;}
+    .level-name{font-family:"STSong","Songti SC","Noto Serif CJK SC",serif;color:#375d4c;font-size:15px;letter-spacing:1.5px;}
+    .level-row:not(.earned) .level-name{color:#8fa599;}
+    .level-subtitle{font-size:10px;color:#87998d;margin-top:3px;letter-spacing:.5px;}
+    .level-status{flex:none;font-size:10px;color:#a1b0a4;}
+    .earned .level-status{color:#467e60;}
+    .sheet-foot{font-size:10px;text-align:center;color:#839c8b;margin-top:12px;flex:none;}
+    .achievement-toast{position:fixed;z-index:95;top:24%;left:50%;width:min(310px,calc(100% - 48px));pointer-events:none;
+      text-align:center;padding:21px 16px;border:1px solid rgba(151,126,80,.38);border-radius:18px;
+      background:linear-gradient(145deg,rgba(255,253,241,.98),rgba(224,241,225,.98));
+      box-shadow:0 14px 56px rgba(39,82,57,.22);opacity:0;transform:translate(-50%,-15px) scale(.95);transition:opacity .28s,transform .28s;}
+    .achievement-toast.show{opacity:1;transform:translate(-50%,0) scale(1);}
+    .toast-decoration{font-size:10px;letter-spacing:4px;color:#b58d54;}
+    .toast-label{font-size:11px;color:#71927f;letter-spacing:3px;margin-top:9px;}
+    .toast-title{font-family:"STSong","Songti SC","Noto Serif CJK SC",serif;font-size:26px;letter-spacing:3px;color:#2a614a;margin-top:7px;}
+    .toast-desc{font-size:11px;color:#8c987e;margin-top:8px;}
+    @media (max-height:740px){
+      .app{padding-top:calc(env(safe-area-inset-top,0px) + 13px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 10px);}
+      .header{min-height:51px;}.intro h1{margin-top:5px;}.intro p{margin-top:3px;}.stage{width:min(90vw,455px,39dvh);}
+      .achievement-card{min-height:74px;margin-top:10px;padding:9px 12px;}.achievement-seal{width:34px;height:34px;font-size:18px;}
+      .achievement-name{font-size:16px;}.footer{padding-top:8px;min-height:52px;}.today-value{font-size:23px;}.tool-button{height:35px}.icon-only{width:35px;}
     }
-    button { font:inherit; border:0; outline:0; -webkit-tap-highlight-color:transparent; touch-action:manipulation; cursor:pointer; }
-    button:focus-visible { outline:2px solid var(--gold); outline-offset:4px; }
-    .app { position:relative; z-index:1; width:100%; height:100%; min-height:0;
-      display:flex; flex-direction:column; align-items:center; padding:calc(env(safe-area-inset-top,0px) + 23px) 22px calc(env(safe-area-inset-bottom,0px) + 21px);
+    @media (max-height:610px){
+      .intro p{display:none}.intro-label{display:none}.intro h1{font-size:19px;margin:3px 0}.stage{width:min(86vw,455px,35dvh);}
+      .achievement-card{margin-top:7px;min-height:66px}.achievement-seal{width:30px;height:30px;font-size:17px}.achievement-top{margin:0}
+      .achievement-bottom{margin-top:2px}.tap-tip{font-size:10px;}.brand-sub{display:none}
     }
-    .header { width:100%; max-width:760px; display:flex; align-items:flex-start; justify-content:space-between; flex:none; min-height:66px; gap:18px; }
-    .brand { display:flex; align-items:center; gap:11px; padding-top:4px; }
-    .brand-mark { width:36px; height:36px; border-radius:50%; border:1px solid rgba(222,176,96,.51);
-      display:grid; place-items:center; color:var(--gold); font-family:"STKaiti","KaiTi",serif; font-size:20px; line-height:1;
-      box-shadow:inset 0 0 0 4px rgba(220,182,111,.045);
+    @media (min-width:800px){
+      .app{padding-top:34px;padding-bottom:23px}.stage{width:min(450px,43dvh)}.achievement-card{margin-top:20px}
+      .bamboo-right{right:5%;}.bamboo-left{left:4%;}
+      .achieve-sheet{border-radius:23px 23px 0 0;}
     }
-    .brand-name { font-size:14px; font-weight:600; line-height:1.3; letter-spacing:2.5px; }
-    .brand-sub { margin-top:4px; color:#6f6c68; font-size:9px; letter-spacing:2.35px; }
-    .lifetime { display:flex; flex-direction:column; align-items:flex-end; margin-top:-3px; gap:2px; }
-    .lifetime-label { color:#99918a; font-size:11px; letter-spacing:2px; }
-    .lifetime-bottom { display:flex; align-items:baseline; gap:5px; }
-    .lifetime-number { color:var(--softgold); font-family:Georgia,"Times New Roman",serif; font-weight:400; font-size:38px; letter-spacing:0; line-height:1.15; font-variant-numeric:tabular-nums; }
-    .lifetime-unit { color:#a99b84; font-size:11px; }
-    .main { width:100%; flex:1; min-height:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-    .intro { flex:none; text-align:center; margin-top:2px; margin-bottom:3px; }
-    .intro-label { font-size:10px; letter-spacing:6px; padding-left:6px; color:#99836a; }
-    .intro h1 { margin:12px 0 5px; font-size:clamp(21px,5vw,28px); line-height:1.32; font-weight:400; font-family:"STSong","Songti SC","Noto Serif CJK SC",serif; letter-spacing:5px; color:#e9d2a7; }
-    .intro p { margin:7px 0 0; color:#817974; font-size:11px; letter-spacing:2px; }
-    .stage { position:relative; flex:none; width:min(96vw,530px,54dvh); aspect-ratio:1 / 1.065; isolation:isolate; }
-    .stage::before { content:""; position:absolute; z-index:0; pointer-events:none; left:10%; right:6%; top:50%; height:33%;
-       background:radial-gradient(ellipse,rgba(192,126,48,.13),rgba(102,70,35,.07) 49%,transparent 73%); filter:blur(27px);
-    }
-    .floor-shadow { position:absolute; width:70%; height:9%; top:88%; left:16%; border-radius:50%;
-      background:radial-gradient(ellipse,rgba(0,0,0,.8),rgba(0,0,0,.36) 49%,transparent 70%); filter:blur(9px); z-index:1; }
-    .woodfish { position:absolute; z-index:2; pointer-events:none; width:82%; height:auto; left:6%; top:41%;
-      transform:translate3d(0,0,0); transform-origin:48% 58%; will-change:transform;
-      filter:drop-shadow(0 18px 18px rgba(0,0,0,.56));
-    }
-    .mallet { position:absolute; z-index:3; pointer-events:none; width:72%; height:auto; right:-13%; top:14%;
-      transform:rotate(0deg); transform-origin:93% 49%; will-change:transform;
-      filter:drop-shadow(0 12px 8px rgba(0,0,0,.35));
-    }
-    .tap-area { position:absolute; z-index:8; inset:4% -2% 0; width:104%; height:96%; background:transparent; border-radius:42%; cursor:pointer;
-      -webkit-tap-highlight-color:transparent; touch-action:manipulation; -webkit-user-select:none; user-select:none;
-    }
-    .float-layer { position:absolute; z-index:7; inset:0; pointer-events:none; overflow:visible; }
-    .float-one { position:absolute; white-space:nowrap; display:flex; align-items:baseline; gap:7px; color:#ffe3a0; pointer-events:none;
-      font-size:13px; font-weight:500; text-shadow:0 1px 18px rgba(226,155,64,.43);
-      animation:rise var(--duration,750ms) cubic-bezier(.13,.63,.12,1) forwards;
-      will-change:transform,opacity;
-    }
-    .float-one strong { font-weight:500; font-family:Georgia,serif; color:#ffda82; font-size:27px; line-height:1; }
-    @keyframes rise { 0% { transform:translate3d(0,12px,0) scale(.65); opacity:0; }
-      17% {opacity:1;transform:translate3d(0,-5px,0) scale(1.05);} 75% {opacity:1;} 100% {opacity:0;transform:translate3d(var(--drift,0px),-96px,0) scale(.96);} }
-    .combo { position:absolute; z-index:7; text-align:center; left:50%; top:24%; transform:translateX(-50%) translateY(5px); pointer-events:none;
-      min-width:90px; display:flex; flex-direction:column; gap:4px; align-items:center; opacity:0; transition:opacity .15s ease,transform .15s ease;
-    }
-    .combo.visible { opacity:1; transform:translateX(-50%) translateY(0); }
-    .combo-label { color:#aa8d62; letter-spacing:4px; font-size:10px; }
-    .combo-number { color:#e9c585; font-size:23px; font-family:Georgia,serif; }
-    .tap-tip { flex:none; display:flex; align-items:center; gap:10px; color:#9a8c77; font-size:12px; letter-spacing:3px; margin-top:0; }
-    .tap-tip::before,.tap-tip::after { content:""; width:26px; height:1px; background:linear-gradient(to right,transparent,rgba(211,161,91,.34)); }
-    .tap-tip::after { transform:rotate(180deg); }
-    .footer { flex:none; width:100%; max-width:760px; padding-top:15px; border-top:1px solid rgba(234,200,149,.09);
-      display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:57px;
-    }
-    .today { display:flex; flex-direction:column; gap:6px; }
-    .today-title { font-size:10px; color:#827a71; letter-spacing:2px; }
-    .today-value { font-family:Georgia,serif; font-size:25px; line-height:1; font-variant-numeric:tabular-nums; color:#b5a48b; }
-    .today-unit {font:11px -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:#716a60;margin-left:5px;}
-    .footer-actions { display:flex; align-items:center; gap:9px; }
-    .tool-button { height:39px; border:1px solid rgba(212,175,117,.18); background:rgba(211,180,127,.035); color:#a99c8a;
-      display:inline-flex; align-items:center; justify-content:center; gap:8px; border-radius:24px; padding:0 13px;
-      transition:background .2s,border-color .2s; font-size:12px; }
-    .tool-button:active { background:rgba(215,177,111,.13); border-color:rgba(212,175,117,.36); }
-    .tool-button svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
-    .tool-button.off { color:#686866; }
-    .icon-only { padding:0; width:39px; }
-    .tiny-notice { position:fixed; z-index:50; left:50%; bottom:calc(env(safe-area-inset-bottom,0px) + 102px);
-      transform:translateX(-50%) translateY(10px); padding:11px 16px; background:#29251f; border:1px solid #5a4731;
-      border-radius:24px; color:#edcf94; font-size:12px; letter-spacing:1px; opacity:0; pointer-events:none;
-      transition:opacity .2s,transform .2s; white-space:nowrap; }
-    .tiny-notice.show {opacity:1;transform:translateX(-50%) translateY(0);}
-    @media (max-height:700px) { .app { padding-top:calc(env(safe-area-inset-top,0px) + 13px); padding-bottom:calc(env(safe-area-inset-bottom,0px) + 12px); }
-      .header { min-height:52px; }.intro h1 {margin-top:6px;margin-bottom:3px}.intro p {margin-top:4px}.intro-label {font-size:9px}
-      .stage {width:min(93vw,530px,53dvh)} .footer {padding-top:10px; min-height:48px} .today-value {font-size:21px;} .tool-button {height:35px}.icon-only{width:35px}
-    }
-    @media (max-height:590px) { .intro p{display:none}.intro h1{font-size:21px}.intro-label{display:none}
-      .stage{width:min(92vw,530px,52dvh)} .brand-sub{display:none} .tap-tip{font-size:11px}
-    }
-    @media (min-width:800px) { .app{padding-top:34px;padding-bottom:33px}.stage {width:min(510px,55dvh)} .intro{margin-bottom:5px}.tap-tip{margin-top:4px} }
-    @media (prefers-reduced-motion:reduce) { .float-one{animation-duration:350ms!important} .combo{transition:none}.woodfish,.mallet{will-change:auto} }
+    @media (prefers-reduced-motion:reduce){.float-one{animation-duration:350ms!important}.combo{transition:none}.woodfish,.mallet{will-change:auto}.achievement-toast{transition:none}.achieve-modal,.achieve-sheet{transition:none}}
   </style>
 </head>
 <body>
+  <div class="scenery" aria-hidden="true">
+    <div class="zen-orb"></div>
+    <svg class="bamboo bamboo-right" viewBox="0 0 220 500" xmlns="http://www.w3.org/2000/svg">
+      <g stroke-width="3"><path d="M170 -20 Q154 130 183 290 T154 530"/><path d="M132 70 Q156 179 112 330 T98 520" stroke-width="2.6"/><path d="M194 115 Q140 154 104 196" stroke-width="2"/><path d="M175 265 Q122 260 67 310" stroke-width="2"/><path d="M120 213 Q90 180 42 159" stroke-width="2"/><path d="M105 365 Q136 352 201 400" stroke-width="2"/></g>
+      <g fill="#73a585" stroke="none">
+       <path d="M167 60 Q105 18 68 37 Q106 82 167 60Z"/><path d="M165 84 Q195 24 219 26 Q207 79 165 84Z"/>
+       <path d="M178 180 Q109 141 59 154 Q106 202 178 180Z"/><path d="M179 204 Q216 158 230 172 Q223 220 179 204Z"/>
+       <path d="M133 128 Q94 90 45 97 Q78 144 133 128Z"/><path d="M121 230 Q69 195 15 208 Q62 253 121 230Z"/>
+       <path d="M109 254 Q155 212 198 232 Q164 275 109 254Z"/>
+       <path d="M82 318 Q45 280 7 294 Q39 336 82 318Z"/><path d="M98 342 Q141 307 179 335 Q139 364 98 342Z"/>
+       <path d="M139 396 Q103 376 53 396 Q98 424 139 396Z"/><path d="M158 412 Q184 365 216 379 Q198 419 158 412Z"/>
+       <path d="M158 478 Q112 448 68 468 Q110 498 158 478Z"/><path d="M158 481 Q207 449 224 459 Q190 495 158 481Z"/>
+       <path d="M72 165 Q25 118 -11 127 Q15 167 72 165Z"/><path d="M62 310 Q21 324 -3 355 Q36 354 62 310Z"/>
+      </g>
+      <g stroke="#edf3ea" stroke-width="1.6" opacity=".52"><path d="M160 120l18 5 M160 240l20 5 M172 362l-23-6 M131 169l-22-6 M109 287l24 5 M97 412l24 4"/></g>
+    </svg>
+    <svg class="bamboo bamboo-left" viewBox="0 0 220 500" xmlns="http://www.w3.org/2000/svg"><g stroke-width="3"><path d="M166 -10 Q133 164 169 299 T149 510"/><path d="M101 80 Q142 224 81 500"/><path d="M147 168 Q87 148 28 196"/><path d="M168 335 Q110 320 22 374"/></g><g fill="#73a585" stroke="none"><path d="M162 91 Q98 39 46 49 Q90 111 162 91Z"/><path d="M172 121 Q204 58 232 80 Q200 141 172 121Z"/><path d="M121 205 Q68 161 8 180 Q63 228 121 205Z"/><path d="M137 239 Q183 186 222 203 Q173 253 137 239Z"/><path d="M164 354 Q103 308 58 327 Q110 381 164 354Z"/><path d="M147 402 Q179 355 221 379 Q186 419 147 402Z"/><path d="M90 424 Q36 390 -4 411 Q34 450 90 424Z"/></g></svg>
+    <svg class="cloud-mark" viewBox="0 0 140 54" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#7fa894" stroke-width="1.5"><path d="M1 40h56c11 0 13-15 2-18-4-18-30-17-35 0-17-6-24 12-16 18m47 0h54c8 0 11-12 2-15-4-16-24-15-28-2m25 17h31"/></svg>
+    <svg class="hills" viewBox="0 0 1000 220" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#bfdbca" opacity=".54" d="M0 137 Q107 78 213 118 T423 122 Q538 28 660 105 T1000 86 V220H0Z"/>
+      <path fill="#97b8a1" opacity=".35" d="M0 183 Q144 121 279 174 Q409 104 510 147 Q690 72 791 160 Q886 117 1000 152 V220H0Z"/>
+      <path fill="#79a489" opacity=".16" d="M0 205 Q166 174 315 203 T665 172 Q847 146 1000 202 V220H0Z"/>
+      <g fill="none" stroke="#77a48c" opacity=".37" stroke-width="2"><path d="M456 148h108l-12-12h-84z"/><path d="M469 136h83l-12-15h-57z"/><path d="M485 120h52l-26-15z"/><path d="M476 147v29h67v-29"/><path d="M502 153v23m18-23v23"/><path d="M445 176h128"/></g>
+    </svg>
+  </div>
   <div class="app">
     <header class="header">
       <div class="brand" aria-label="静心木鱼">
@@ -143,6 +242,15 @@
         <button class="tap-area" id="tapArea" type="button" aria-label="敲击木鱼，功德加一"></button>
       </div>
       <div class="tap-tip">轻触木鱼 · 功德 +1</div>
+      <button class="achievement-card" id="achievementCard" type="button" aria-label="查看今日成就及十阶称号">
+        <span class="achievement-seal" aria-hidden="true" id="achievementSeal">禅</span>
+        <span class="achievement-body">
+          <span class="achievement-top"><span class="achievement-overline">今日成就</span><span class="achievement-count" id="achievementCount">0 / 10 阶</span></span>
+          <span class="achievement-name" id="achievementName">静待初鸣</span>
+          <span class="achievement-bottom"><span class="achievement-track"><span class="achievement-fill" id="achievementFill"></span></span><span class="achievement-next" id="achievementNext">距第一阶还差 100 次</span></span>
+        </span>
+        <svg class="achievement-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+      </button>
     </main>
     <footer class="footer">
       <div class="today"><span class="today-title">今日已敲</span><span class="today-value"><span id="today">0</span><span class="today-unit">次</span></span></div>
@@ -159,6 +267,26 @@
     </footer>
   </div>
   <div id="notice" class="tiny-notice" role="status"></div>
+  <div id="achievementModal" class="achieve-modal" role="dialog" aria-modal="true" aria-labelledby="achievementDialogTitle" aria-hidden="true">
+    <div class="achieve-backdrop" id="achievementBackdrop"></div>
+    <div class="achieve-sheet">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <div class="sheet-head">
+        <div><div class="sheet-kicker">DAILY PRACTICE</div><h2 id="achievementDialogTitle" class="sheet-title">今日十阶功德</h2></div>
+        <button type="button" id="achievementClose" class="sheet-close" aria-label="关闭成就列表">×</button>
+      </div>
+      <div class="sheet-summary" id="achievementSummary">每日修习，循序渐进</div>
+      <div id="achievementList" class="levels-list"></div>
+      <div class="sheet-foot">称号仅按今日敲击次数解锁 · 每日 00:00 重置 · 累计功德保留</div>
+    </div>
+  </div>
+  <div class="achievement-toast" id="achievementToast" role="status" aria-live="polite">
+    <div class="toast-decoration">✦ &nbsp; 境 界 精 进 &nbsp; ✦</div>
+    <div class="toast-label">恭喜达成今日成就</div>
+    <div class="toast-title" id="toastTitle">初闻梵音</div>
+    <div class="toast-desc" id="toastDesc">今日敲击达到 100 次</div>
+  </div>
+
   <script>
     (() => {
       'use strict';
@@ -185,34 +313,126 @@
         try { localStorage.setItem(STORE_KEY,JSON.stringify(record)); } catch(e) { /* 不影响敲击 */ }
       }
       function queueSave(){ clearTimeout(saveTimer); saveTimer=setTimeout(persist,380); }
+      // 每日十阶称号。仅使用当天次数，与历史累计分开；每日零点重置。
+      const ACHIEVEMENTS=[
+        {at:100,name:'初闻梵音',note:'一声木鱼，一念初生'},
+        {at:500,name:'心如止水',note:'心湖渐静，波澜渐息'},
+        {at:1000,name:'一念清净',note:'千声回响，杂念轻放'},
+        {at:2000,name:'竹影听禅',note:'竹风过耳，静意自来'},
+        {at:3000,name:'晨钟暮鼓',note:'朝暮有度，心有所安'},
+        {at:5000,name:'定心守一',note:'守住当下，不随纷扰'},
+        {at:8000,name:'禅心渐明',note:'念念分明，步步自在'},
+        {at:12000,name:'万念归寂',note:'繁声尽处，归于清宁'},
+        {at:20000,name:'明心见性',note:'澄明如镜，万象自明'},
+        {at:30000,name:'功德圆满',note:'今日十阶，功德圆成'}
+      ];
+      const achieveCard=$('achievementCard'), achieveName=$('achievementName'),achieveCount=$('achievementCount');
+      const achieveFill=$('achievementFill'),achieveNext=$('achievementNext'),achieveSeal=$('achievementSeal');
+      const achieveModal=$('achievementModal'),achieveList=$('achievementList');
+      const achieveSummary=$('achievementSummary'),achieveClose=$('achievementClose'),achieveToast=$('achievementToast');
+      let achievementToastTimer=0;
+      const fmt=n=>n.toLocaleString('zh-CN');
+      function getAchievementLevel(){
+        let level=0;
+        for(const item of ACHIEVEMENTS){if(record.today>=item.at)level++;else break;}
+        return level;
+      }
+      function renderAchievement(){
+        const level=getAchievementLevel();
+        const current=level?ACHIEVEMENTS[level-1]:null;
+        const next=ACHIEVEMENTS[level];
+        achieveName.textContent=current?current.name:'静待初鸣';
+        achieveSeal.textContent=level===10?'圆':level?'禅':'木';
+        achieveCount.textContent=`${level} / 10 阶`;
+        if(next){
+          const base=current?current.at:0;
+          const fraction=(record.today-base)/(next.at-base);
+          achieveFill.style.width=Math.max(0,Math.min(100,fraction*100))+'%';
+          achieveNext.textContent=`距下阶 ${fmt(next.at-record.today)} 次`;
+        } else {
+          achieveFill.style.width='100%';
+          achieveNext.textContent='十阶圆满';
+        }
+        return level;
+      }
+      function renderAchievementList(){
+        const level=getAchievementLevel();
+        achieveSummary.textContent=`今日已敲 ${fmt(record.today)} 次 · 已解锁 ${level} / 10 阶`;
+        achieveList.innerHTML=ACHIEVEMENTS.map((item,i)=>{
+          const unlocked=record.today>=item.at;
+          const current=unlocked&&(i===level-1);
+          return `<div class="level-row ${unlocked?'earned':''} ${current?'current':''}">
+             <span class="level-number">${String(i+1).padStart(2,'0')}</span>
+             <div class="level-title-wrap"><div class="level-name">${item.name}</div><div class="level-subtitle">${item.note}</div></div>
+             <span class="level-status">${unlocked?'✓ 已达成':fmt(item.at)+' 次'}</span>
+           </div>`;
+        }).join('');
+      }
+      function openAchievements(){
+        renderAchievementList();achieveModal.classList.add('open');achieveModal.setAttribute('aria-hidden','false');achieveClose.focus({preventScroll:true});
+      }
+      function closeAchievements(){
+        achieveModal.classList.remove('open');achieveModal.setAttribute('aria-hidden','true');achieveCard.focus({preventScroll:true});
+      }
+      function showLevelToast(item){
+        $('toastTitle').textContent=item.name;
+        $('toastDesc').textContent=`今日敲击达到 ${fmt(item.at)} 次`;
+        achieveToast.classList.remove('show');
+        void achieveToast.offsetWidth;
+        achieveToast.classList.add('show');
+        clearTimeout(achievementToastTimer);
+        achievementToastTimer=setTimeout(()=>achieveToast.classList.remove('show'),2600);
+      }
+      achieveCard.addEventListener('click',openAchievements);
+      achieveClose.addEventListener('click',closeAchievements);
+      $('achievementBackdrop').addEventListener('click',closeAchievements);
+      document.addEventListener('keydown',event=>{if(event.key==='Escape'&&achieveModal.classList.contains('open'))closeAchievements();});
       function renderNumbers(){ totalEl.textContent=record.total.toLocaleString('zh-CN');todayEl.textContent=record.today.toLocaleString('zh-CN'); }
       function renderSound(){soundText.textContent=record.sound?'音效开启':'音效关闭';onIcon.style.display=record.sound?'':'none';offIcon.style.display=record.sound?'none':'';soundBtn.classList.toggle('off',!record.sound);soundBtn.setAttribute('aria-pressed',String(record.sound));soundBtn.setAttribute('aria-label',record.sound?'关闭敲击音效':'开启敲击音效');}
-      renderNumbers();renderSound();
+      renderNumbers();renderSound();renderAchievement();
 
+      // v1.1：移动端使用真正的媒体音频，解决部分 iPhone Safari 的 Web Audio 解锁和静音开关问题。
+      // 采用内嵌 WAV，离线 / GitHub Pages 都可用。音频必须在真实的 click 事件中开始播放。
+      const IS_IOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||
+        (navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+      const WAV_SOUND='data:audio/wav;base64,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';
+      const mediaPool=Array.from({length:8},()=>{
+        const a=new Audio();a.src=WAV_SOUND;a.preload='auto';a.volume=1;
+        return a;
+      });
+      let mediaCursor=0;
+      function configureMediaSession(){
+        // Safari 16.4+ 的音频会话配置，降低设备静音模式造成的无声问题。
+        try { if(navigator.audioSession) navigator.audioSession.type='playback'; }catch(e){}
+      }
       let audioCtx=null,noiseBuffer=null,master=null;
       function setupAudio(){
-        if(audioCtx)return audioCtx;
+        if(audioCtx && audioCtx.state!=='closed' && audioCtx.state!=='interrupted')return audioCtx;
+        if(audioCtx && audioCtx.state==='interrupted'){
+          try{audioCtx.close().catch(()=>{});}catch(e){}
+          audioCtx=null;
+        }
         const AC=window.AudioContext||window.webkitAudioContext;
         if(!AC)return null;
-        try {
+        try{
           audioCtx=new AC();
           master=audioCtx.createDynamicsCompressor();
-          master.threshold.value=-18; master.knee.value=14; master.ratio.value=4;
-          master.attack.value=0.003;master.release.value=0.10;
+          master.threshold.value=-18;master.knee.value=14;master.ratio.value=4;
+          master.attack.value=.003;master.release.value=.10;
           master.connect(audioCtx.destination);
-          const len=Math.max(1,Math.floor(audioCtx.sampleRate*0.075));
+          const len=Math.max(1,Math.floor(audioCtx.sampleRate*.075));
           noiseBuffer=audioCtx.createBuffer(1,len,audioCtx.sampleRate);
           const data=noiseBuffer.getChannelData(0);
           for(let i=0;i<len;i++)data[i]=(Math.random()*2-1)*(1-i/len);
-        }catch(e){audioCtx=null;}
+        }catch(e){audioCtx=null;master=null;return null;}
         return audioCtx;
       }
-      function playKnock(){
-        if(!record.sound)return;
+      function playSynthKnock(){
         const ctx=setupAudio();if(!ctx)return;
-        if(ctx.state==='suspended')ctx.resume().catch(()=>{});
-        const t=ctx.currentTime+0.004;
-        // 短促的木质击打声：基频、非谐波木腔泛音与敲击瞬态。
+        if(ctx.state!=='running'){
+          try { const p=ctx.resume();if(p&&p.catch)p.catch(()=>{}); }catch(e){}
+        }
+        const t=ctx.currentTime+.004;
         [[460,.18,.15],[720,.093,.12],[1135,.048,.08]].forEach(([freq,vol,dur],i)=>{
           const o=ctx.createOscillator(),g=ctx.createGain();
           o.type=i===0?'triangle':'sine';
@@ -226,10 +446,29 @@
         if(noiseBuffer){
           const src=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),gain=ctx.createGain();
           src.buffer=noiseBuffer;filter.type='bandpass';filter.frequency.value=1250;filter.Q.value=.62;
-          gain.gain.setValueAtTime(.08,t);
-          gain.gain.exponentialRampToValueAtTime(.0001,t+.047);
+          gain.gain.setValueAtTime(.08,t);gain.gain.exponentialRampToValueAtTime(.0001,t+.047);
           src.connect(filter);filter.connect(gain);gain.connect(master);src.start(t);src.stop(t+.06);
         }
+      }
+      function playMediaKnock(){
+        // 轮播音轨允许快速敲击时多次音效重叠；无需等待上一个声音播完。
+        const a=mediaPool[mediaCursor++ % mediaPool.length];
+        try{
+          // Safari 首次播放时 readyState 可能为 0，避免对未加载的音频 seek 抛错。
+          a.pause();
+          if(a.readyState>0){try{a.currentTime=0;}catch(e){}}
+          const result=a.play();
+          if(result&&result.catch)result.catch(()=>{
+            // 少数老版 WebKit 不支持 data: WAV 或拒绝媒体播放时，退回 Web Audio。
+            if(record.sound)playSynthKnock();
+          });
+        }catch(e){playSynthKnock();}
+      }
+      function playKnock(){
+        if(!record.sound)return;
+        configureMediaSession();
+        if(IS_IOS)playMediaKnock();
+        else playSynthKnock();
       }
       const reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       function animateStrike(){
@@ -268,38 +507,44 @@
       function strike(){
         const date=todayKey();if(record.date!==date){record.date=date;record.today=0;}
         record.total++;record.today++;
-        renderNumbers();queueSave();
+        renderNumbers();
+        const newLevel=renderAchievement();
+        if(newLevel>0 && record.today===ACHIEVEMENTS[newLevel-1].at)showLevelToast(ACHIEVEMENTS[newLevel-1]);
+        queueSave();
         const now=performance.now();streak=now-lastTap<460?streak+1:1;lastTap=now;
         if(streak>=2){comboNum.textContent=streak;comboEl.classList.add('visible');}
         else comboEl.classList.remove('visible');
         clearTimeout(comboTimer);comboTimer=setTimeout(()=>{comboEl.classList.remove('visible');streak=0;},1150);
         animateStrike();floatPlusOne();playKnock();
       }
-      // pointerdown 代替 click：手指接触即反馈，快速连点不漏计，也不会触发 iPhone 双击放大。
-      let lastKeyboardHit=0;
-      tapArea.addEventListener('keydown',e=>{
-        if(e.key==='Enter' || e.key===' '){ e.preventDefault(); lastKeyboardHit=Date.now(); strike(); }
+      // click 在 iOS Safari 中属于可信用户激活，能直接解锁播放。
+      // 旧版在触屏 pointerdown 播放（手指尚未抬起），Safari 可能不允许启动音频。
+      // viewport + touch-action:manipulation 同时禁止双击缩放，快速连点仍会逐次触发 click。
+      tapArea.addEventListener('click',e=>{
+        if(e.detail===0 && e.isTrusted===false)return; // 忽略脚本伪造事件
+        strike();
       });
-      if(window.PointerEvent){
-        tapArea.addEventListener('pointerdown',e=>{
-          if(e.pointerType==='mouse'&&e.button!==0)return;
-          e.preventDefault();strike();
-        },{passive:false});
-      }else{
-        let lastTouch=0;
-        tapArea.addEventListener('touchstart',e=>{e.preventDefault();lastTouch=Date.now();strike();},{passive:false});
-        tapArea.addEventListener('click',()=>{if(Date.now()-lastTouch>500&&Date.now()-lastKeyboardHit>500)strike();});
-      }
       tapArea.addEventListener('contextmenu',e=>e.preventDefault());
-      soundBtn.addEventListener('click',()=>{record.sound=!record.sound;renderSound();persist();});
+      soundBtn.addEventListener('click',()=>{record.sound=!record.sound;renderSound();persist();if(record.sound)playKnock();});
       let noticeTimer=0;
       function showNotice(text){ notice.textContent=text;notice.classList.add('show');clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>notice.classList.remove('show'),1700); }
       $('resetBtn').addEventListener('click',()=>{
         if(!window.confirm('确定清空今日及累计敲击记录吗？此操作不可撤销。'))return;
         record.total=0;record.today=0;record.date=todayKey();streak=0;
-        comboEl.classList.remove('visible');floats.textContent='';renderNumbers();persist();showNotice('记录已清空');
+        comboEl.classList.remove('visible');floats.textContent='';renderNumbers();renderAchievement();persist();showNotice('记录已清空');
       });
-      document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')persist();});
+      function refreshDailyDate(){
+        const newDate=todayKey();
+        if(record.date!==newDate){
+          record.date=newDate;record.today=0;
+          streak=0;comboEl.classList.remove('visible');
+          renderNumbers();renderAchievement();
+          if(achieveModal.classList.contains('open'))renderAchievementList();
+          persist();
+        }
+      }
+      setInterval(refreshDailyDate,30000);
+      document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')persist();else refreshDailyDate();});
       window.addEventListener('pagehide',persist);
     })();
   </script>
