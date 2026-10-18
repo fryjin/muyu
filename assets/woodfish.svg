@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="600" height="400">
+<defs>
+ <linearGradient id="b" x1=".15" y1=".08" x2=".86" y2=".94"><stop stop-color="#f9e6be"/><stop offset=".25" stop-color="#e5be7f"/><stop offset=".62" stop-color="#be8647"/><stop offset="1" stop-color="#875027"/></linearGradient>
+ <linearGradient id="u" x1=".17" y1=".08" x2=".86" y2=".86"><stop stop-color="#f9e9c8"/><stop offset=".34" stop-color="#ecc995"/><stop offset=".75" stop-color="#ce9c61"/><stop offset="1" stop-color="#a36a36"/></linearGradient>
+ <linearGradient id="l" x1="0" y1="0" x2=".9" y2="1"><stop stop-color="#e8c185"/><stop offset=".45" stop-color="#d7a469"/><stop offset="1" stop-color="#9a6536"/></linearGradient>
+ <linearGradient id="cut" x1=".15" y1="0" x2=".9" y2="1"><stop stop-color="#1a0c08"/><stop offset=".66" stop-color="#392014"/><stop offset="1" stop-color="#56311a"/></linearGradient>
+ <radialGradient id="glow" cx=".28" cy=".12" r=".7"><stop stop-color="#fff8dc" stop-opacity=".63"/><stop offset=".8" stop-color="#fff" stop-opacity="0"/></radialGradient>
+ <clipPath id="outline"><path d="M73 228 C75 160 126 119 202 102 C319 77 428 108 478 193 C493 218 497 238 500 260 C513 281 534 289 536 301 C538 318 520 323 505 322 C470 375 376 392 268 380 C168 370 94 340 79 290 C72 270 69 250 73 228 Z"/></clipPath>
+</defs>
+<!-- Fish is intentionally a single painted surface: no live SVG filters or procedural noise. -->
+<path d="M496 272 Q531 281 546 300 Q548 310 529 314 Q514 319 496 306Z" fill="#b57b40" stroke="#98622e" stroke-width="2"/>
+<path d="M509 284 Q527 292 531 302 Q524 304 513 303" fill="none" stroke="#74441e" stroke-width="5" stroke-linecap="round" opacity=".76"/>
+<path d="M77 232 C76 164 128 119 204 102 C320 79 426 107 477 193 C501 231 504 280 490 311 C468 357 377 382 274 377 C169 372 96 338 80 286 C74 268 73 247 77 232 Z" fill="url(#b)" stroke="#8f5d32" stroke-width="2.3"/>
+<path d="M81 239 C104 235 138 237 177 241 C242 248 324 267 404 291 C430 299 451 308 471 299 C463 340 396 366 302 370 C205 372 119 348 89 310 C75 293 72 258 81 239Z" fill="url(#l)" opacity=".87"/>
+<!-- upper convex shell and its carved lip -->
+<path d="M77 228 C87 171 143 123 224 109 C337 91 428 134 470 218 C480 239 486 256 481 271 C463 254 433 243 402 235 C311 211 183 210 87 232Z" fill="url(#u)" stroke="#b38248" stroke-width="1.5"/>
+<path d="M80 231 C156 216 275 216 371 238 C427 251 455 265 468 276 C480 292 466 311 448 309 C399 283 335 272 264 260 C177 246 120 242 77 246 C72 242 74 237 80 231Z" fill="url(#cut)"/>
+<path d="M77 231 C160 214 268 220 369 241 C423 251 457 271 467 283" fill="none" stroke="#6b3e22" stroke-width="5.3" stroke-linecap="round"/>
+<path d="M86 251 C185 249 301 267 399 300 C428 310 448 317 463 306" fill="none" stroke="#edc388" stroke-width="4" opacity=".72" stroke-linecap="round"/>
+<path d="M98 214 C128 163 175 136 244 123 C325 109 394 138 438 188" fill="none" stroke="#fff2d4" stroke-width="6" opacity=".35" stroke-linecap="round"/>
+<path d="M90 239 C117 156 187 112 265 105 C371 96 447 148 471 226 C482 265 473 276 467 279" fill="url(#glow)" opacity=".5"/>
+<g clip-path="url(#outline)" fill="none" stroke="#8b5a30" opacity=".14" stroke-width="1.8">
+ <path d="M100 193 C180 137 293 132 372 162"/><path d="M112 204 C176 173 278 156 400 188"/><path d="M95 280 C165 274 264 298 342 323"/><path d="M106 294 C204 309 249 326 302 334"/><path d="M139 331 C216 350 333 359 409 337"/>
+ <path d="M157 146 C238 112 327 121 401 157"/><path d="M130 175 C225 132 343 143 414 178"/>
+</g>
+<path d="M119 306 Q178 344 277 354" stroke="#fff1d4" stroke-opacity=".18" stroke-width="5" fill="none" stroke-linecap="round"/>
+</svg>
